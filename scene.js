@@ -40,7 +40,7 @@ function Circle(x, y, z, dx, dy, dz, radius) {
     
     this.x = x
     this.y = y
-	this.z = z
+    this.z = z
     this.dx = dx
     this.dy = dy
 	this.dz = dz   
