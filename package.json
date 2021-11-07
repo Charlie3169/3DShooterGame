@@ -1,23 +1,6 @@
 {
-  "name": "FinalProject",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Charlie3169/FinalProject.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Charlie3169/FinalProject/issues"
-  },
-  "homepage": "https://github.com/Charlie3169/FinalProject#readme",
-  "dependencies": {
-    "three": "^0.134.0"
-  }
+    "scripts": {
+        "start": "nodemon --experimental-modules --es-module-specifier-resolution=node index.js"
+    },
+    "type": "module"
 }
