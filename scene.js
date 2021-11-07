@@ -1,4 +1,5 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.134.0';
+//import * as THREE from 'three';
 
 const FOV = 75;
 const width = window.innerWidth;
