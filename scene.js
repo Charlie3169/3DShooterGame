@@ -104,7 +104,7 @@ document.addEventListener('keydown', function(event) {
 })
 
 
-function Player(x, y, z, dx, dy, dz, ) {
+function Player(x, y, z, dx, dy, dz, health, mana) {
 
 
 }
