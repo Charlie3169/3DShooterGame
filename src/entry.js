@@ -42,14 +42,16 @@ document.body.appendChild( renderer.domElement );
 */
 
 import * as THREE from 'three';
+import BasicLights from './objects/Lights.js';
 
 
 const FOV = 75;
 const width = window.innerWidth;
 const height = window.innerHeight;
+const aspect = width / height;
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(FOV, width / height, 0.1, 1000 );
+const camera = new THREE.PerspectiveCamera(FOV, aspect, 0.1, 1000 );
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(width, height);
@@ -58,24 +60,58 @@ document.body.appendChild(renderer.domElement);
 const geometry = new THREE.BoxGeometry();
 const material = new THREE.MeshBasicMaterial( { color: 0x27ccbb} );
 const box = new THREE.Mesh( geometry, material );
-scene.add(box);
 
-camera.position.z = 5;
+const arenaXSize = 100;
+const arenaYSize = 100;
+const arenaZSize = 100;
+
+camera.position.set(0, 0, 10);
+
+function axisBoxes() {
+
+  let zeroBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0xffffff} ));
+  zeroBox.position.set(0, 0, 0);
+
+
+  let xBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0xcc2727} ));
+  xBox.position.set(arenaXSize, 0, 0);
+
+  let yBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x273acc} ));
+  yBox.position.set(0, arenaYSize, 0);
+
+  let zBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x31d613} ));
+  zBox.position.set(0, 0, arenaZSize);
+
+  scene.add(zeroBox);
+  scene.add(xBox);
+  scene.add(yBox);
+  scene.add(zBox);
+}
+
+function initObjects() {
+  for (let i = 0; i < 200; i++) {
+    let randomBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x27ccbb} ));
+    randomBox.position.set(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100), Math.floor(Math.random() * 100))
+    scene.add(randomBox);
+  } 
+}
 
 function animate() {
 	requestAnimationFrame(animate);
+
   box.rotateX(0.01);
-  box.rotateY(0.01);  
+  box.rotateY(0.01);      
+
 	renderer.render(scene, camera);    
 }
+
+axisBoxes(); 
+initObjects();
 animate();
 
 
 
 
-const arenaXSize = 100;
-const arenaYSize = 100;
-const arenaZSize = 100;
 
 function Circle(x, y, z, dx, dy, dz, radius) {
     
@@ -84,7 +120,7 @@ function Circle(x, y, z, dx, dy, dz, radius) {
     this.z = z
     this.dx = dx
     this.dy = dy
-	this.dz = dz   
+	  this.dz = dz   
     
     this.radius = radius
     
@@ -120,28 +156,64 @@ function Circle(x, y, z, dx, dy, dz, radius) {
 
 }
 
+const cameraRotationSpeed = 0.1
+const cameraTranslationSpeed = 0.5;
 
 document.addEventListener('keydown', function(event) {
 
-    if(event.code == 'ShiftLeft'){}	
-        //Player z down
-    
-    if(event.code == 'Space'){}	  
-        //Player z up
-    
+  if(event.code == 'ShiftLeft') {
+    //Player z down
+    camera.translateZ(cameraTranslationSpeed)
+  }	
+      
+  
+  if(event.code == 'Space') {
+    //Player z up
+    camera.translateZ(-cameraTranslationSpeed)
+  }	  
+      
+  
 
-    if(event.code == 'KeyW'){}	       
-        //Player x forward
-    
+  if(event.code == 'KeyW') {
+    //Player x forward
+    camera.translateX(cameraTranslationSpeed)
+  }	       
+      
+  
 
-    if(event.code == 'KeyS'){}	
-		//Player x backward
+  if(event.code == 'KeyS') {
+    //Player x backward
+    camera.translateX(-cameraTranslationSpeed)
+  }	
+  
     
-	if(event.code == 'KeyA'){}	         
-        //Player y left
+	if(event.code == 'KeyA') {
+    //Player y left
+    camera.translateY(cameraTranslationSpeed)
+  }	         
+        
 
-	if(event.code == 'KeyD'){}	          
-        //Player y right
+	if(event.code == 'KeyD') {
+    //Player y right
+    camera.translateY(-cameraTranslationSpeed)
+  }	          
+        
+
+  if(event.code == 'ArrowUp') {
+    camera.rotateX(cameraRotationSpeed)
+  }    
+
+  if(event.code == 'ArrowDown') {
+    camera.rotateX(-cameraRotationSpeed)
+  }
+
+  if(event.code == 'ArrowLeft') {
+    camera.rotateY(cameraRotationSpeed)
+  }    
+
+  if(event.code == 'ArrowRight') {
+    camera.rotateY(-cameraRotationSpeed)
+  }
         
 })
 

@@ -7,11 +7,11 @@ export default class SeedScene extends Group {
   constructor() {
     super();
 
-    const land = new Land();
-    const flower = new Flower();
+    //const land = new Land();
+    //const flower = new Flower();
     const lights = new BasicLights();
 
-    this.add(land, flower, lights);
+    this.add(lights);
   }
 
   update(timeStamp) {

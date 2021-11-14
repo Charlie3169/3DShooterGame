@@ -7,8 +7,13 @@ Players can move in all directions and could shoot balls of various sizes and sp
 It is hard to straight up hit someone with a ball since they are all pretty slow compared to the player but as the match goes on more enemy balls will litter the arena, so player movement slowly gets restricted. A match ends when only one player remains.
  The core of the gameplay revolves around strategically blocking off other players movement with your own shots as well as trick shotting them through the walls.
 
-### Instructions
+### Setup Instructions
 1. Clone project
 2. Run npm install in project directory
 3. Run npm start
 4. Go to http://localhost:8080/
+
+
+### Game Instructions
+Arrow keys to rotate camera
+WASD to translate camera
