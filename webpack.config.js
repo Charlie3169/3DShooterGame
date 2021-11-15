@@ -5,6 +5,7 @@ const buildPath = './build/';
 
 module.exports = {
   entry: ['./src/js/entry.js'],
+  //entry: ['/junk/originalExample.js'],
   output: {
     path: path.join(__dirname, buildPath),
     filename: '[name].[hash].js'
@@ -26,6 +27,9 @@ module.exports = {
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({'title': 'three-seed project'})
+    new HtmlWebpackPlugin({
+      filename: 'index.html',      
+      template: 'src/html/index.html'
+    })
   ]
 }
