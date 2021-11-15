@@ -42,34 +42,73 @@ document.body.appendChild( renderer.domElement );
 */
 
 import * as THREE from 'three';
-import BasicLights from './objects/Lights.js';
+import { PointerLockControls } from './jsm/controls/PointerLockControls.js.js.js';
 
-
-const FOV = 75;
-const width = window.innerWidth;
-const height = window.innerHeight;
-const aspect = width / height;
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(FOV, aspect, 0.1, 1000 );
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(width, height);
-document.body.appendChild(renderer.domElement);
-
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial( { color: 0x27ccbb} );
-const box = new THREE.Mesh( geometry, material );
 
 const arenaXSize = 100;
 const arenaYSize = 100;
 const arenaZSize = 100;
 
+const FOV = 75;
+const aspect = window.innerWidth / window.innerHeight;
+//====================================//
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color( 0xffffff );
+scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+
+const camera = new THREE.PerspectiveCamera(FOV, aspect, 0.1, 1000 );
 camera.position.set(0, 0, 10);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+document.body.appendChild(renderer.domElement);
+
+
+
+
+//====================================//
+const geometry = new THREE.BoxGeometry();
+const material = new THREE.MeshBasicMaterial( { color: 0x27ccbb} );
+const box = new THREE.Mesh( geometry, material );
+
+//=================================================================//
+const controls = new PointerLockControls( camera, document.body );
+const blocker = document.getElementById( 'blocker' );
+const instructions = document.getElementById( 'instructions' );
+
+instructions.addEventListener( 'click', function () {
+
+  controls.lock();
+
+} );
+
+controls.addEventListener( 'lock', function () {
+
+  instructions.style.display = 'none';
+  blocker.style.display = 'none';
+
+} );
+
+controls.addEventListener( 'unlock', function () {
+
+  blocker.style.display = 'block';
+  instructions.style.display = '';
+
+} );
+//=================================================================//        
+
+function init() {
+
+  window.addEventListener( 'resize', onWindowResize );
+}
+
+
 
 function axisBoxes() {
 
-  let zeroBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0xffffff} ));
+  let zeroBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x5a32a8} ));
   zeroBox.position.set(0, 0, 0);
 
 
@@ -105,12 +144,20 @@ function animate() {
 	renderer.render(scene, camera);    
 }
 
+init();
 axisBoxes(); 
 initObjects();
 animate();
 
 
+function onWindowResize() {
 
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
 
 
 function Circle(x, y, z, dx, dy, dz, radius) {
