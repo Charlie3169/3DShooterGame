@@ -4,8 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const buildPath = './build/';
 
 module.exports = {
-  entry: ['./src/js/entry.js'],
-  //entry: ['/junk/originalExample.js'],
+  entry: ['./src/js/entry.js'], 
   output: {
     path: path.join(__dirname, buildPath),
     filename: '[name].[hash].js'

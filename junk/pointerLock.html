@@ -3,9 +3,17 @@
 	<head>
 		<title>three.js - pointerlock controls</title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">		
 		<style>
+			body {
+				margin: 0;
+				background-color: #000;
+				color: #fff;
+				font-family: Monospace;
+				font-size: 13px;
+				line-height: 24px;
+				overscroll-behavior: none;
+			}
 			#blocker {
 				position: absolute;
 				width: 100%;
@@ -46,7 +54,7 @@
 
 			import * as THREE from 'three';
 
-			//import { PointerLockControls } from './jsm/controls/PointerLockControls.js';
+			import { PointerLockControls } from './examples/jsm/controls/PointerLockControls.js';
 
 			let camera, scene, renderer, controls;
 
@@ -82,8 +90,7 @@
 				light.position.set( 0.5, 1, 0.75 );
 				scene.add( light );
 
-				/*
-                controls = new PointerLockControls( camera, document.body );
+				controls = new PointerLockControls( camera, document.body );
 
 				const blocker = document.getElementById( 'blocker' );
 				const instructions = document.getElementById( 'instructions' );
@@ -108,10 +115,9 @@
 
 				} );
 
-				scene.add( controls.getObject() );
-                */
+				scene.add(controls.getObject());
 
-				const onKeyDown = function ( event ) {
+				const onKeyDown = function (event) {
 
 					switch ( event.code ) {
 
@@ -144,7 +150,7 @@
 
 				};
 
-				const onKeyUp = function ( event ) {
+				const onKeyUp = function (event) {
 
 					switch ( event.code ) {
 
@@ -172,15 +178,15 @@
 
 				};
 
-				document.addEventListener( 'keydown', onKeyDown );
-				document.addEventListener( 'keyup', onKeyUp );
+				document.addEventListener('keydown', onKeyDown);
+				document.addEventListener('keyup', onKeyUp);
 
 				raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
 
 				// floor
 
-				let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
-				floorGeometry.rotateX( - Math.PI / 2 );
+				//let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
+				//floorGeometry.rotateX( - Math.PI / 2 );
 
 				// vertex displacement
 

@@ -1,275 +1,273 @@
-/*
-import { WebGLRenderer, PerspectiveCamera, Scene, Vector3 } from 'three';
-import SeedScene from './objects/Scene.js';
-
-const scene = new Scene();
-const camera = new PerspectiveCamera();
-const renderer = new WebGLRenderer({antialias: true});
-const seedScene = new SeedScene();
-
-// scene
-scene.add(seedScene);
-
-// camera
-camera.position.set(6,3,-10);
-camera.lookAt(new Vector3(0,0,0));
-
-// renderer
-renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x7ec0ee, 1);
-
-// render loop
-const onAnimationFrameHandler = (timeStamp) => {
-  renderer.render(scene, camera);
-  seedScene.update && seedScene.update(timeStamp);
-  window.requestAnimationFrame(onAnimationFrameHandler);
-}
-window.requestAnimationFrame(onAnimationFrameHandler);
-
-// resize
-const windowResizeHanlder = () => { 
-  const { innerHeight, innerWidth } = window;
-  renderer.setSize(innerWidth, innerHeight);
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-};
-windowResizeHanlder();
-window.addEventListener('resize', windowResizeHanlder);
-
-// dom
-document.body.style.margin = 0;
-document.body.appendChild( renderer.domElement );
-*/
-
 import * as THREE from 'three';
-//import { PointerLockControls } from './jsm/controls/PointerLockControls.js';
 
-const arenaXSize = 100;
-const arenaYSize = 100;
-const arenaZSize = 100;
+import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+
+let camera, scene, renderer, controls;
+
+let raycaster;
+
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let moveUp = false;
+let moveDown = false;
 
 const FOV = 75;
-const aspect = window.innerWidth / window.innerHeight;
-//====================================//
+const arenaSize = 400;
+const projectiles = [];
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color( 0xffffff );
-scene.fog = new THREE.Fog( 0xffffff, 0, 750 );
+let prevTime = performance.now();
 
-const camera = new THREE.PerspectiveCamera(FOV, aspect, 0.1, 1000 );
-camera.position.set(0, 0, 10);
-
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-
-document.body.appendChild(renderer.domElement);
+const velocity = new THREE.Vector3();
+const direction = new THREE.Vector3();
 
 
-
-
-//====================================//
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshBasicMaterial( { color: 0x27ccbb} );
-const box = new THREE.Mesh( geometry, material );
-
-//=================================================================//
-/*
-const controls = new PointerLockControls( camera, document.body );
-const blocker = document.getElementById( 'blocker' );
-const instructions = document.getElementById( 'instructions' );
-
-instructions.addEventListener( 'click', function () {
-
-  controls.lock();
-
-} );
-
-controls.addEventListener( 'lock', function () {
-
-  instructions.style.display = 'none';
-  blocker.style.display = 'none';
-
-} );
-
-controls.addEventListener( 'unlock', function () {
-
-  blocker.style.display = 'block';
-  instructions.style.display = '';
-
-} );
-*/
-//=================================================================//        
+init();
+animate();
 
 function init() {
 
-  window.addEventListener( 'resize', onWindowResize );
+    camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.x = arenaSize / 2;
+    camera.position.y = arenaSize / 2;
+    camera.position.z = arenaSize / 2;
+
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xffffff);
+    scene.fog = new THREE.Fog(0xffffff, 0, 1500);
+
+    controls = new PointerLockControls(camera, document.body);
+
+    const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+    light.position.set(0.5, 1, 0.75);
+    scene.add(light);    
+
+    const blocker = document.getElementById('blocker');
+    const instructions = document.getElementById('instructions');
+
+    instructions.addEventListener('click', function () {        
+
+        controls.lock();
+    });
+
+    controls.addEventListener('lock', function () {
+
+        instructions.style.display = 'none';
+        blocker.style.display = 'none';
+
+    });
+
+    controls.addEventListener('unlock', function () {
+
+        blocker.style.display = 'block';
+        instructions.style.display = '';
+
+    });
+
+    scene.add(controls.getObject());
+
+    const onKeyDown = function (event) {
+
+        switch (event.code) {
+            
+            case 'KeyW':
+                moveForward = true;
+                break;
+            
+            case 'KeyA':
+                moveLeft = true;
+                break;
+            
+            case 'KeyS':
+                moveBackward = true;
+                break;
+            
+            case 'KeyD':
+                moveRight = true;
+                break;
+
+            case 'Space':                
+                moveUp = true;
+                break;
+
+            case 'ShiftLeft':                
+                moveDown = true;
+                break;
+
+        }
+
+    };
+
+    const onKeyUp = function (event) {
+
+        switch (event.code) {
+            
+            case 'KeyW':
+                moveForward = false;
+                break;
+            
+            case 'KeyA':
+                moveLeft = false;
+                break;
+            
+            case 'KeyS':
+                moveBackward = false;
+                break;
+            
+            case 'KeyD':
+                moveRight = false;
+                break;
+
+            case 'Space':                
+                moveUp = false;
+                break;
+
+            case 'ShiftLeft':                
+                moveDown = false;
+                break;
+
+        }
+
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+    
+
+    raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
+
+    //walls
+    /*
+
+    let floorGeometry1 = new THREE.Plane(new THREE.Vector3(1, 0 ,0));
+    let floorGeometry2 = new THREE.Plane(new THREE.Vector3(0, 1 ,0));
+    let floorGeometry3 = new THREE.Plane(new THREE.Vector3(0, 0 ,1));
+
+    let floorGeometry4 = new THREE.Plane(new THREE.Vector3(1, 0 ,0), arenaSize);
+    let floorGeometry5 = new THREE.Plane(new THREE.Vector3(0, 1 ,0), arenaSize);
+    let floorGeometry6 = new THREE.Plane(new THREE.Vector3(0, 0 ,1), arenaSize);
+
+    const floorMaterial1 = new THREE.MeshBasicMaterial({ vertexColors: true });
+
+    const floor1 = new THREE.Mesh(floorGeometry1, floorMaterial1);
+    const floor2 = new THREE.Mesh(floorGeometry2, floorMaterial1);
+    const floor3 = new THREE.Mesh(floorGeometry3, floorMaterial1);
+    const floor4 = new THREE.Mesh(floorGeometry4, floorMaterial1);
+    const floor5 = new THREE.Mesh(floorGeometry5, floorMaterial1);
+    const floor6 = new THREE.Mesh(floorGeometry6, floorMaterial1);   
+    
+
+    scene.add(floor1);
+    scene.add(floor2);
+    scene.add(floor3);
+    scene.add(floor4);
+    scene.add(floor5);
+    scene.add(floor6);
+    */
+
+    
+    // objects         
+
+    for (let i = 0; i < 100; i ++) {
+
+        const boxGeometry = new THREE.BoxGeometry(10, 10, 10).toNonIndexed();
+        const boxMaterial = new THREE.MeshBasicMaterial({color: 0x27ccbb});        
+        const box = new THREE.Mesh(boxGeometry, boxMaterial);
+                
+        box.position.x = Math.floor(Math.random() * arenaSize);
+        box.position.y = Math.floor(Math.random() * arenaSize);
+        box.position.z = Math.floor(Math.random() * arenaSize);
+
+        scene.add(box);        
+
+    }
+
+    const arenaBoxGeometry = new THREE.BoxGeometry(arenaSize, arenaSize, arenaSize).toNonIndexed();
+    const wireframe = new THREE.EdgesGeometry(arenaBoxGeometry).toNonIndexed();
+    const arenaBoxMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 40000});    
+    const arenaBox = new THREE.LineSegments(wireframe, arenaBoxMaterial);  
+
+    arenaBox.position.x = arenaSize / 2;
+    arenaBox.position.y = arenaSize / 2;
+    arenaBox.position.z = arenaSize / 2;
+
+    scene.add(arenaBox); 
+
+    //
+
+    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);    
+    document.body.appendChild(renderer.domElement);
+
+    //
+
+    window.addEventListener('resize', onWindowResize);
+
 }
-
-
-
-function axisBoxes() {
-
-  let zeroBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x5a32a8} ));
-  zeroBox.position.set(0, 0, 0);
-
-
-  let xBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0xcc2727} ));
-  xBox.position.set(arenaXSize, 0, 0);
-
-  let yBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x273acc} ));
-  yBox.position.set(0, arenaYSize, 0);
-
-  let zBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x31d613} ));
-  zBox.position.set(0, 0, arenaZSize);
-
-  scene.add(zeroBox);
-  scene.add(xBox);
-  scene.add(yBox);
-  scene.add(zBox);
-}
-
-function initObjects() {
-  for (let i = 0; i < 200; i++) {
-    let randomBox = new THREE.Mesh( new THREE.BoxGeometry(), new THREE.MeshBasicMaterial( { color: 0x27ccbb} ));
-    randomBox.position.set(Math.floor(Math.random() * 100), Math.floor(Math.random() * 100), Math.floor(Math.random() * 100))
-    scene.add(randomBox);
-  } 
-}
-
-function animate() {
-	requestAnimationFrame(animate);
-
-  box.rotateX(0.01);
-  box.rotateY(0.01);      
-
-	renderer.render(scene, camera);    
-}
-
-init();
-axisBoxes(); 
-initObjects();
-animate();
-
 
 function onWindowResize() {
 
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
+function animate() {
 
-function Circle(x, y, z, dx, dy, dz, radius) {
-    
-    this.x = x
-    this.y = y
-    this.z = z
-    this.dx = dx
-    this.dy = dy
-	  this.dz = dz   
-    
-    this.radius = radius
-    
+    requestAnimationFrame(animate);
 
-    this.draw = function () {
+    const time = performance.now();
+
+    if (controls.isLocked === true) {
+
+        raycaster.ray.origin.copy(controls.getObject().position);
+        raycaster.ray.origin.y -= 10;
+
+        //const intersections = raycaster.intersectObjects(objects, false);
+
+        //const onObject = intersections.length > 0;
+
+        const delta = (time - prevTime) / 500;
+
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= velocity.y * 10.0 * delta;
+
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
+        direction.y = Number(moveDown) - Number(moveUp);
+        direction.normalize(); // this ensures consistent movements in all directions
+
+        if (moveForward || moveBackward) velocity.z -= direction.z * 600.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 600.0 * delta;
+        if (moveUp || moveDown) velocity.y -= direction.y * 600.0 * delta;
+       
         
-    }         
-    
-    this.collisionDetection = function (circle) {
-                           
-    }   
-    
+        controls.moveRight(- velocity.x * delta);
+        controls.moveForward(- velocity.z * delta);        
 
-    this.update = function () 
-    {      
+        controls.getObject().position.y += (velocity.y * delta); // new behavior         
+             
         
-        this.x = (this.x + this.dx) % arenaXSize
-        this.y = (this.y + this.dy) % arenaYSize
-		    this.z = (this.z + this.dz) % arenaZSize
-
-        if(this.x < 0)        
-            this.x = arenaXSize;        
-
-        if(this.y < 0)        
-            this.y = arenaYSize;      
-
-		    if(this.z < 0)        
-            this.z = arenaZSize;      
-                                                           
         
-        this.draw()                           
+        if (controls.getObject().position.x < 0) controls.getObject().position.x = arenaSize;  
+        if (controls.getObject().position.y < 0) controls.getObject().position.y = arenaSize;  
+        if (controls.getObject().position.z < 0) controls.getObject().position.z = arenaSize;    
+
+        if (controls.getObject().position.x > arenaSize) controls.getObject().position.x = 0;  
+        if (controls.getObject().position.y > arenaSize) controls.getObject().position.y = 0;  
+        if (controls.getObject().position.z > arenaSize) controls.getObject().position.z = 0; 
+        
+        
+
     }
 
-}
-
-const cameraRotationSpeed = 0.1
-const cameraTranslationSpeed = 0.5;
-
-document.addEventListener('keydown', function(event) {
-
-  if(event.code == 'ShiftLeft') {
-    //Player z down
-    camera.translateZ(cameraTranslationSpeed)
-  }	
-      
-  
-  if(event.code == 'Space') {
-    //Player z up
-    camera.translateZ(-cameraTranslationSpeed)
-  }	  
-      
-  
-
-  if(event.code == 'KeyW') {
-    //Player x forward
-    camera.translateX(cameraTranslationSpeed)
-  }	       
-      
-  
-
-  if(event.code == 'KeyS') {
-    //Player x backward
-    camera.translateX(-cameraTranslationSpeed)
-  }	
-  
-    
-	if(event.code == 'KeyA') {
-    //Player y left
-    camera.translateY(cameraTranslationSpeed)
-  }	         
-        
-
-	if(event.code == 'KeyD') {
-    //Player y right
-    camera.translateY(-cameraTranslationSpeed)
-  }	          
-        
-
-  if(event.code == 'ArrowUp') {
-    camera.rotateX(cameraRotationSpeed)
-  }    
-
-  if(event.code == 'ArrowDown') {
-    camera.rotateX(-cameraRotationSpeed)
-  }
-
-  if(event.code == 'ArrowLeft') {
-    camera.rotateY(cameraRotationSpeed)
-  }    
-
-  if(event.code == 'ArrowRight') {
-    camera.rotateY(-cameraRotationSpeed)
-  }
-        
-})
-
-
-function Player(x, y, z, dx, dy, dz, health, mana) {
-
+    prevTime = time;
+    renderer.render(scene, camera);
 
 }
-
-
-
