@@ -14,8 +14,8 @@ let moveUp = false;
 let moveDown = false;
 
 const FOV = 75;
-const arenaSize = 400;
-const projectiles = [];
+const arenaSize = 700;
+const projectiles = new Array();
 
 let prevTime = performance.now();
 
@@ -135,6 +135,25 @@ function init() {
     document.addEventListener('keydown', onKeyDown);
     document.addEventListener('keyup', onKeyUp);
     
+    const onClick = function (event) {
+
+      if (controls.isLocked === true) {
+        let cameraDirection = camera.getWorldDirection();
+        console.log(cameraDirection);
+        
+        const sphereGeometry = new THREE.SphereGeometry(7, 32, 16).toNonIndexed();
+        const sphereMaterial = new THREE.MeshBasicMaterial({color: 0x27ccbb});        
+        const sphere  = new THREE.Mesh(sphereGeometry, sphereMaterial);              
+        
+        sphere.position.x = camera.position.x;
+        sphere.position.y = camera.position.y;
+        sphere.position.z = camera.position.z;
+
+        scene.add(sphere);      
+        
+      }
+    }
+    document.addEventListener('click', onClick);
 
     raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
 
@@ -173,7 +192,7 @@ function init() {
     for (let i = 0; i < 100; i ++) {
 
         const boxGeometry = new THREE.BoxGeometry(10, 10, 10).toNonIndexed();
-        const boxMaterial = new THREE.MeshBasicMaterial({color: 0x27ccbb});        
+        const boxMaterial = new THREE.MeshBasicMaterial({color: 0x343aeb});        
         const box = new THREE.Mesh(boxGeometry, boxMaterial);
                 
         box.position.x = Math.floor(Math.random() * arenaSize);
@@ -234,9 +253,9 @@ function animate() {
 
         const delta = (time - prevTime) / 500;
 
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y -= velocity.y * 10.0 * delta;
+        velocity.x -= velocity.x * 3.5 * delta;
+        velocity.z -= velocity.z * 3.5 * delta;
+        velocity.y -= velocity.y * 3.5 * delta;
 
         direction.z = Number(moveForward) - Number(moveBackward);
         direction.x = Number(moveRight) - Number(moveLeft);
@@ -251,8 +270,7 @@ function animate() {
         controls.moveRight(- velocity.x * delta);
         controls.moveForward(- velocity.z * delta);        
 
-        controls.getObject().position.y += (velocity.y * delta); // new behavior         
-             
+        controls.getObject().position.y += (velocity.y * delta); // new behavior                      
         
         
         if (controls.getObject().position.x < 0) controls.getObject().position.x = arenaSize;  
