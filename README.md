@@ -15,5 +15,7 @@ It is hard to straight up hit someone with a ball since they are all pretty slow
 
 
 ### Game Instructions
-Arrow keys to rotate camera
-WASD to translate camera
+Click window to start. 
+Use mouse to look around.
+WASD + Spacebar and Shift to translate camera in all six directions.
+
