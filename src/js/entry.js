@@ -292,11 +292,16 @@ function mirroring(inputVector)
     switch(i) {
       case 0:
         //position.setX(position.x + arenaSize);
-        
+        xComp = 1;
         break;  
-  
+
+      case 0:        
+        xComp = 0;
+        break; 
+
       case 2:
-        position.setX(position.x - arenaSize);
+        //position.setX(position.x - arenaSize);
+        xComp = -1;
         break;       
     }
 
@@ -304,11 +309,17 @@ function mirroring(inputVector)
 
       switch(i) {
         case 0:
-          position.setY(position.y + arenaSize);
+          //position.setY(position.y + arenaSize);
+          yComp = 1;
           break;  
 
+        case 0:        
+          yComp = 0;
+          break; 
+        
         case 2:
-          position.setY(position.y - arenaSize);
+          //position.setY(position.y - arenaSize);
+          yComp = -1;
           break;       
       }
       
@@ -317,15 +328,28 @@ function mirroring(inputVector)
 
         switch(i) {
           case 0:
-            position.setZ(position.z + arenaSize);
+            //position.setZ(position.z + arenaSize);
+            zComp = 1;
+            break;
+
+          case 0:        
+            zComp = 0;
             break;
 
           case 2:
-            position.setZ(position.z - arenaSize);
+            //position.setZ(position.z - arenaSize);
+            zComp = -1;
             break;       
         }
 
-        if(!(i == 1 && j == 1 && k == 1)) returnCoords.push(position);             
+        if(!(i == 1 && j == 1 && k == 1))
+        {
+          returnCoords.push(new THREE.Vector3(            
+            arenaSize * xComp + inputVector.x,
+            arenaSize * yComp + inputVector.y,
+            arenaSize * zComp + inputVector.z
+            )); 
+        }             
         //position.setZ(inputVector.z);
 
       }   
