@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js';
+import Projectile from './Projectile';
 
 let camera, scene, renderer, controls;
 
@@ -15,7 +16,7 @@ let moveDown = false;
 
 const FOV = 75;
 const arenaSize = 700;
-const projectiles = new Array();
+const projectiles = [];
 
 let prevTime = performance.now();
 
@@ -137,10 +138,13 @@ function init() {
     
     const onClick = function (event) {
 
-      if (controls.isLocked === true) {
-        let cameraDirection = camera.getWorldDirection();
-        console.log(cameraDirection);
+      if (controls.isLocked === true) {       
         
+        let ball = new Projectile(
+          camera.position.x, camera.position.y, camera.position.z,
+          camera.getWorldDirection(), 10, 7, 0x27ccbb
+          );       
+
         const sphereGeometry = new THREE.SphereGeometry(7, 32, 16).toNonIndexed();
         const sphereMaterial = new THREE.MeshBasicMaterial({color: 0x27ccbb});        
         const sphere  = new THREE.Mesh(sphereGeometry, sphereMaterial);              
@@ -149,7 +153,9 @@ function init() {
         sphere.position.y = camera.position.y;
         sphere.position.z = camera.position.z;
 
-        scene.add(sphere);      
+        projectiles.push(ball);
+
+        scene.add(sphere);    
         
       }
     }
@@ -236,20 +242,14 @@ function onWindowResize() {
 
 }
 
+
 function animate() {
 
     requestAnimationFrame(animate);
 
     const time = performance.now();
 
-    if (controls.isLocked === true) {
-
-        raycaster.ray.origin.copy(controls.getObject().position);
-        raycaster.ray.origin.y -= 10;
-
-        //const intersections = raycaster.intersectObjects(objects, false);
-
-        //const onObject = intersections.length > 0;
+    if (controls.isLocked === true) {      
 
         const delta = (time - prevTime) / 500;
 
@@ -281,7 +281,10 @@ function animate() {
         if (controls.getObject().position.y > arenaSize) controls.getObject().position.y = 0;  
         if (controls.getObject().position.z > arenaSize) controls.getObject().position.z = 0; 
         
-        
+        for (let i = 0; i < projectiles.length; i++)
+        {
+          console.log(projectiles[i]);
+        }  
 
     }
 
