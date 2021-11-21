@@ -29,7 +29,7 @@ animate();
 
 function init() {
 
-    camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 1, 1000);
+    camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 1, 1500);
     camera.position.x = arenaSize / 2;
     camera.position.y = arenaSize / 2;
     camera.position.z = arenaSize / 2;
@@ -37,11 +37,13 @@ function init() {
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xffffff);
-    scene.fog = new THREE.Fog(0xffffff, 0, 1500);
+    scene.fog = new THREE.Fog(0xffffff, 0, 2000);
 
     controls = new PointerLockControls(camera, document.body);
 
-    const light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
+    const color = 0xeeeeff;
+    const intensity = 0.75;
+    const light = new THREE.HemisphereLight(color, 0x777788, intensity);
     light.position.set(0.5, 1, 0.75);
     scene.add(light);    
 
@@ -159,9 +161,7 @@ function init() {
         
       }
     }
-    document.addEventListener('click', onClick);
-
-    raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0), 0, 10);
+    document.addEventListener('click', onClick);   
 
     //walls
     /*
@@ -209,16 +209,60 @@ function init() {
 
     }
 
-    const arenaBoxGeometry = new THREE.BoxGeometry(arenaSize, arenaSize, arenaSize).toNonIndexed();
-    const wireframe = new THREE.EdgesGeometry(arenaBoxGeometry).toNonIndexed();
-    const arenaBoxMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 40000});    
-    const arenaBox = new THREE.LineSegments(wireframe, arenaBoxMaterial);  
+    
+    
 
-    arenaBox.position.x = arenaSize / 2;
-    arenaBox.position.y = arenaSize / 2;
-    arenaBox.position.z = arenaSize / 2;
+    
+    
+    
 
-    scene.add(arenaBox); 
+    console.log(mirroring(new THREE.Vector3((arenaSize / 2), (arenaSize / 2), (arenaSize / 2))));
+
+    for (let i = 0; i < 7; i++) {      
+
+      const arenaBoxGeometry = new THREE.BoxGeometry(arenaSize, arenaSize, arenaSize).toNonIndexed();
+      const wireframe = new THREE.EdgesGeometry(arenaBoxGeometry);
+      const arenaBoxMaterial = new THREE.LineBasicMaterial({color: 0x000000, linewidth: 4});    
+      const arenaBox = new THREE.LineSegments(wireframe, arenaBoxMaterial);  
+
+      arenaBox.position.x = (arenaSize / 2);
+      arenaBox.position.y = (arenaSize / 2);
+      arenaBox.position.z = (arenaSize / 2);
+
+      
+      
+      switch(i) {
+        case 0:
+
+          break;
+
+        case 1:
+          arenaBox.position.x = (arenaSize / 2) + arenaSize;
+          break;
+
+        case 2:
+          arenaBox.position.x = (arenaSize / 2) - arenaSize;
+          break;
+
+        case 3:
+          arenaBox.position.y = (arenaSize / 2) + arenaSize;
+          break;
+
+        case 4:
+          arenaBox.position.y = (arenaSize / 2) - arenaSize;
+          break;
+        case 5:
+          arenaBox.position.z = (arenaSize / 2) + arenaSize;
+          break;
+        case 6:
+          arenaBox.position.z = (arenaSize / 2) - arenaSize;
+          break;  
+        
+      }
+
+      scene.add(arenaBox); 
+      
+    }  
 
     //
 
@@ -230,6 +274,69 @@ function init() {
     //
 
     window.addEventListener('resize', onWindowResize);
+
+}
+
+function mirroring(inputVector)
+{
+  let position = new THREE.Vector3();
+  position = inputVector;
+
+  let xComp = 0;
+  let yComp = 0;
+  let zComp = 0;
+
+  let returnCoords = [];
+  for (let i = 0; i < 3; i++) {  
+
+    switch(i) {
+      case 0:
+        //position.setX(position.x + arenaSize);
+        
+        break;  
+  
+      case 2:
+        position.setX(position.x - arenaSize);
+        break;       
+    }
+
+    for (let j = 0; j < 3; j++) { 
+
+      switch(i) {
+        case 0:
+          position.setY(position.y + arenaSize);
+          break;  
+
+        case 2:
+          position.setY(position.y - arenaSize);
+          break;       
+      }
+      
+
+      for (let k = 0; k < 3; k++) {          
+
+        switch(i) {
+          case 0:
+            position.setZ(position.z + arenaSize);
+            break;
+
+          case 2:
+            position.setZ(position.z - arenaSize);
+            break;       
+        }
+
+        if(!(i == 1 && j == 1 && k == 1)) returnCoords.push(position);             
+        //position.setZ(inputVector.z);
+
+      }   
+      //position.setY(inputVector.y);  
+
+    }
+    //position.setX(inputVector.x);
+
+  }  
+
+  return returnCoords;
 
 }
 
@@ -281,10 +388,12 @@ function animate() {
         if (controls.getObject().position.y > arenaSize) controls.getObject().position.y = 0;  
         if (controls.getObject().position.z > arenaSize) controls.getObject().position.z = 0; 
         
+        /*
         for (let i = 0; i < projectiles.length; i++)
         {
           console.log(projectiles[i]);
-        }  
+        } 
+        */ 
 
     }
 
