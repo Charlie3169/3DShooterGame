@@ -1,6 +1,6 @@
 import { Vector3 } from "three";
 export default class Projectile {
-    constructor(positionX, positionY, positionZ, direction, speed, size, ballColor) {   
+    constructor(positionX, positionY, positionZ, direction, speed, size, ballColor, arenaSize) {   
 
      this.positionX = positionX;
      this.positionY = positionY;
@@ -9,6 +9,7 @@ export default class Projectile {
      this.speed = speed;
      this.size = size; 
      this.ballColor = ballColor;  
+     this.arenaSize = arenaSize;
 
      this.draw = function () {
         
@@ -24,29 +25,16 @@ export default class Projectile {
         
         this.x = (this.x + this.dx) % window.innerWidth
         this.y = (this.y + this.dy) % window.innerHeight
-        if(this.x < 0)        
-            this.x = window.innerWidth;        
+        
+        if (positionX < 0) positionX = arenaSize;  
+        if (positionY < 0) positionY = arenaSize;  
+        if (positionZ < 0) positionZ = arenaSize;    
 
-        if(this.y < 0)        
-            this.y = window.innerHeight;      
+        if (positionX > arenaSize) positionX = 0;  
+        if (positionY > arenaSize) positionY = 0;  
+        if (positionZ > arenaSize) positionZ = 0; 
                        
-        let sp = 0.01
-
-        for (var i = 0; i < circles.length; i++) 
-        { 
-            if(this != circles[i])
-            {                             
-                ctx.beginPath();
-                ctx.strokeStyle = Math.random() > .5 ? this.color : circles[i].color
-                ctx.lineWidth = 10
-                ctx.moveTo(this.x, this.y)
-                ctx.lineTo(circles[i].x, circles[i].y)
-                ctx.stroke()                  
-                      
-            }                                   
-            
-                     
-        }                        
+                              
         
         this.draw()                           
     }
