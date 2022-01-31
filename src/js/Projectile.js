@@ -1,5 +1,9 @@
 import { Vector3 } from "three";
-export default class Projectile {
+import { Mesh } from "three";
+export default class Projectile extends Mesh {
+
+    super( geometry, material );
+
     constructor(positionX, positionY, positionZ, direction, speed, size, ballColor, arenaSize) {   
 
      this.positionX = positionX;
@@ -23,8 +27,7 @@ export default class Projectile {
 
     this.update = function () {      
         
-        this.x = (this.x + this.dx) % window.innerWidth
-        this.y = (this.y + this.dy) % window.innerHeight
+        
         
         if (positionX < 0) positionX = arenaSize;  
         if (positionY < 0) positionY = arenaSize;  
