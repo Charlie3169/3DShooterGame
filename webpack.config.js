@@ -7,8 +7,7 @@ module.exports = {
   entry: ['./src/js/entry.js'], 
   output: {
     path: path.join(__dirname, buildPath),
-    filename: '[name].[hash].js',
-    publicPath: "/Final-Project/"
+    filename: '[name].[hash].js'
   },
   mode: 'development',
   target: 'web',

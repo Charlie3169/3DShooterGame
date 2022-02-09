@@ -7,8 +7,6 @@ import Projectile from './Projectile';
 //                 Initializations                   //
 //===================================================//
 
-
-
 let camera;
 let scene;
 let renderer;
