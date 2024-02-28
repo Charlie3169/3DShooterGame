@@ -12,7 +12,8 @@
   "scripts": {
     "start": "webpack serve",
     "prebuild": "rimraf ./build && mkdir ./build",
-    "build": "webpack --mode production"
+    "build": "webpack --mode production",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "three": "^0.129.0",
